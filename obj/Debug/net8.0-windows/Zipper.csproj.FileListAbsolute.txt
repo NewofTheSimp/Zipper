@@ -1,0 +1,16 @@
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\Zipper.Form1.resources
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\Zipper.csproj.GenerateResource.cache
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\Zipper.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\Zipper.AssemblyInfoInputs.cache
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\Zipper.AssemblyInfo.cs
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\Zipper.csproj.CoreCompileInputs.cache
+C:\Users\wille\Downloads\Zipper\Zipper\bin\Debug\net8.0-windows\Zipper.exe
+C:\Users\wille\Downloads\Zipper\Zipper\bin\Debug\net8.0-windows\Zipper.deps.json
+C:\Users\wille\Downloads\Zipper\Zipper\bin\Debug\net8.0-windows\Zipper.runtimeconfig.json
+C:\Users\wille\Downloads\Zipper\Zipper\bin\Debug\net8.0-windows\Zipper.dll
+C:\Users\wille\Downloads\Zipper\Zipper\bin\Debug\net8.0-windows\Zipper.pdb
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\Zipper.dll
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\refint\Zipper.dll
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\Zipper.pdb
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\Zipper.genruntimeconfig.cache
+C:\Users\wille\Downloads\Zipper\Zipper\obj\Debug\net8.0-windows\ref\Zipper.dll

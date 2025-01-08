@@ -89,6 +89,13 @@ namespace Zipper
 
     public class stats
     {
+        internal static string translate(byte[] f, Dictionary<byte, string> table)
+        {
+            string t = "";
+            //My_dict1.Keys.ElementAt
+            for (int i = 0; i < 1; i++)  t += table.Keys.ElementAt(f[i]);
+            return t;
+        }
         /// <summary>
         /// return  how often each byte occurs in file
         /// </summary>

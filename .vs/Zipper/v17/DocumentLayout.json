@@ -1,0 +1,70 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\Notebook01\\Documents\\GitHub\\Zipper\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{B5E562F5-3183-4CB7-B224-B4D18D5C1293}|Zipper.csproj|c:\\users\\notebook01\\documents\\github\\zipper\\dll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5E562F5-3183-4CB7-B224-B4D18D5C1293}|Zipper.csproj|solutionrelative:dll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5E562F5-3183-4CB7-B224-B4D18D5C1293}|Zipper.csproj|c:\\users\\notebook01\\documents\\github\\zipper\\.gitattributes||{3B902123-F8A7-4915-9F01-361F908088D0}",
+      "RelativeMoniker": "D:0:0:{B5E562F5-3183-4CB7-B224-B4D18D5C1293}|Zipper.csproj|solutionrelative:.gitattributes||{3B902123-F8A7-4915-9F01-361F908088D0}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{B5E562F5-3183-4CB7-B224-B4D18D5C1293}|Zipper.csproj|c:\\users\\notebook01\\documents\\github\\zipper\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{B5E562F5-3183-4CB7-B224-B4D18D5C1293}|Zipper.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 1,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": ".gitattributes",
+              "DocumentMoniker": "C:\\Users\\Notebook01\\Documents\\GitHub\\Zipper\\.gitattributes",
+              "RelativeDocumentMoniker": ".gitattributes",
+              "ToolTip": "C:\\Users\\Notebook01\\Documents\\GitHub\\Zipper\\.gitattributes",
+              "RelativeToolTip": ".gitattributes",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-01-08T13:59:42.142Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "dll.cs",
+              "DocumentMoniker": "C:\\Users\\Notebook01\\Documents\\GitHub\\Zipper\\dll.cs",
+              "RelativeDocumentMoniker": "dll.cs",
+              "ToolTip": "C:\\Users\\Notebook01\\Documents\\GitHub\\Zipper\\dll.cs",
+              "RelativeToolTip": "dll.cs",
+              "ViewState": "AgIAAFYAAAAAAAAAAAAUwGoAAAAIAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-08T12:04:03.374Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Form1.cs",
+              "DocumentMoniker": "C:\\Users\\Notebook01\\Documents\\GitHub\\Zipper\\Form1.cs",
+              "RelativeDocumentMoniker": "Form1.cs",
+              "ToolTip": "C:\\Users\\Notebook01\\Documents\\GitHub\\Zipper\\Form1.cs",
+              "RelativeToolTip": "Form1.cs",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAMwBMAAAA3AAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-01-08T12:45:45.527Z"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

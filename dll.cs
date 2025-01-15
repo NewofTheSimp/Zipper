@@ -87,17 +87,23 @@ namespace Zipper
         }
     }
 
+    /// <summary>
+    ///     Iterate throug the file assigning the new bitvalue from the table to every byte in the file.
+    /// </summary>
     public class stats
     {
         internal static string translate(byte[] f, Dictionary<byte, string> table)
         {
             string t = "";
             //My_dict1.Keys.ElementAt
-            for (int i = 0; i < 1; i++)  t += table.Keys.ElementAt(f[i]);
+            for (int i = 0; i < f.Length; i++)  t += table[f[i]];
+            int ct = t.Length % 8;
+            for (int i = ct; i < 8; i++) t += "0";
             return t;
+
         }
         /// <summary>
-        /// return  how often each byte occurs in file
+        ///     return how often each byte occurs in file
         /// </summary>
         internal static uint[] countEachByte(byte[] file)
         {
@@ -107,7 +113,7 @@ namespace Zipper
         }
 
         /// <summary>
-        /// return the head of a doubly linked list asc on freq
+        ///     return the head of a doubly linked list asc on freq
         /// </summary>
         internal static DoublyLinkedList makeDLL(uint[] freq)
         {
@@ -156,11 +162,9 @@ namespace Zipper
         }
 
         /// <summary>
-        ///     
+        ///     Assign lower nodes from the next and previous current node. 
+        ///     Add the new node in sequence traverse nodes.
         /// </summary>
-        /// <param name="head"></param>
-        /// <param name="L"></param>
-        /// <returns></returns>
         internal static DoublyLinkedList makeDLLHuffman(DoublyLinkedList L)
         {
             Node current = L.Head;

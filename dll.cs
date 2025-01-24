@@ -88,18 +88,48 @@ namespace Zipper
     }
 
     /// <summary>
-    ///     Iterate throug the file assigning the new bitvalue from the table to every byte in the file.
+    ///     return byte[] by translating the file (converting each byte by it bitpattern in the table
     /// </summary>
+    /// <algo>
+    /// Iterate bytewise throug the file adding the new bitvalue from the table to a string.
+    /// determine extra bits such that we get a stringlength which is a multiple of 8
+    /// convert string to byte[]
+    /// </algo>
     public class stats
     {
-        internal static string translate(byte[] f, Dictionary<byte, string> table)
-        {
+        internal static byte[] translate(byte[] f, Dictionary<byte, string> table)
+
+        {   int x = 0;
             string t = "";
-            //My_dict1.Keys.ElementAt
             for (int i = 0; i < f.Length; i++)  t += table[f[i]];
             int ct = t.Length % 8;
-            for (int i = ct; i < 8; i++) t += "0";
-            return t;
+            for (int i = ct; i < 8; i++)
+            {
+                t += "0";
+                x++;
+            }
+
+           
+            int byteCount = t.Length / 8;
+            byte[] bArr = new byte[byteCount];
+            for (int s = 0; s < byteCount; s++)
+            {
+                int strCnt = 0;
+                int bval = 128;
+                string byteString = t.Substring(s * 8, 8);
+                for (int b = 0; b < byteString.Length; b++)
+                {
+                    if (byteString[b] == '1')
+                    {
+                        strCnt += bval;
+                    }
+                    bval /= 2;    
+
+                }
+                bArr[s] = Convert.ToByte(strCnt);
+            }
+              
+            return bArr;
 
         }
         /// <summary>

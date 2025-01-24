@@ -21,7 +21,7 @@ namespace Zipper
             DLL = stats.makeDLLHuffman(DLL);
             //Node tail = stats.CreateTree(DLL.Head);
             Dictionary<byte, string> table = stats.BuildHuffmanTable(DLL.Tail);
-            string s = stats.translate(file, table);
+            byte[] byArr = stats.translate(file, table);
 
         }
 

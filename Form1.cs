@@ -22,7 +22,7 @@ namespace Zipper
             //Node tail = stats.CreateTree(DLL.Head);
             Dictionary<byte, string> table = stats.BuildHuffmanTable(DLL.Tail);
             byte[] byArr = stats.translate(file, table);
-
+            string s=stats.saveTree(DLL.Tail);
         }
 
     }

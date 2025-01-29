@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Drawing.Design;
 using System.Xml.Linq;
+using System.DirectoryServices.ActiveDirectory;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Zipper
 {
@@ -98,40 +100,36 @@ namespace Zipper
     public class stats
     {
         internal static byte[] translate(byte[] f, Dictionary<byte, string> table)
-
-        {   int x = 0;
+        {
+            int x = 0;
             string t = "";
             for (int i = 0; i < f.Length; i++)  t += table[f[i]];
-            int ct = t.Length % 8;
-            for (int i = ct; i < 8; i++)
-            {
-                t += "0";
-                x++;
-            }
+            x = 8 - t.Length % 8;
+            for (int i = 0; i < x; i++) t += "0";
+            
 
-           
             int byteCount = t.Length / 8;
-            byte[] bArr = new byte[byteCount];
-            for (int s = 0; s < byteCount; s++)
+            byte[] bArr = new byte[byteCount+1];
+            for (int i = 0; i < byteCount; i++)
             {
-                int strCnt = 0;
-                int bval = 128;
-                string byteString = t.Substring(s * 8, 8);
-                for (int b = 0; b < byteString.Length; b++)
-                {
-                    if (byteString[b] == '1')
-                    {
-                        strCnt += bval;
-                    }
-                    bval /= 2;    
-
-                }
-                bArr[s] = Convert.ToByte(strCnt);
+                bArr[i] =convert8bB(t.Substring(i * 8, 8));
             }
-              
+            bArr[byteCount] = (byte)x;
             return bArr;
-
         }
+
+        private static byte convert8bB(string s)
+        {
+            int cnt = 0, w = 128;
+            for (int b = 0; b < s.Length; b++)
+            {
+                if (s[b] == '1') cnt +=w;
+                w/= 2;
+            }
+            return (byte)cnt;
+        }
+
+
         /// <summary>
         ///     return how often each byte occurs in file
         /// </summary>
@@ -184,6 +182,38 @@ namespace Zipper
             BuildTableRecursive(tail.Right, code + "0", huffmanTable);
 
         }
+        /// <summary>
+        ///     return string that saves the tree structure with the byte values (not the freq)
+        /// </summary>
+        /// <algo>
+        ///     step through the tree from the top down.
+        ///     assign a 0 for a non-leaf and then go down in the order left right
+        ///     and a 1 for a leaf node + the normal bitcode of the byte of that node
+        /// </algo>
+        public static void rsaveTree(Node n, string s)
+        {
+            // Leaf node
+            if (n.Left == null)
+            {
+                s += '1';
+                s += convertBt8b(n.Key);
+            }
+            else    //non-leaf
+            {
+                s += '0';
+                rsaveTree(n.Left, s);
+                rsaveTree(n.Right, s);
+            }
+        }
+
+        /// <summary>
+        /// convert byte to 8 bits
+        /// </summary>
+        private static string convertBt8b(byte key)
+        {
+            return "x";
+        }
+
         public static Dictionary<byte, string> BuildHuffmanTable(Node root)
         {
             var huffmanTable = new Dictionary<byte, string>();
@@ -248,6 +278,15 @@ namespace Zipper
                 return File.ReadAllBytes(ofd.FileName);
             }
             return null;
+        }
+        /// <summary>
+        /// return string that saves the tree structure with the byte values (not the freq)
+        /// </summary>
+        internal static string saveTree(Node tail)
+        {
+            string s = "";
+            rsaveTree(tail, s);
+            return s;
         }
     }
 

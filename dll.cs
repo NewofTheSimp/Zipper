@@ -211,7 +211,14 @@ namespace Zipper
         /// </summary>
         private static string convertBt8b(byte key)
         {
-            return "x";
+            string str = "";
+            byte value = key; // 00000101 in binary
+            for (int i = 7; i >= 0; i--)
+            {
+                int bit = (value >> i) & 1; // Extract each bit
+                str += bit;
+            }
+            return str;
         }
 
         public static Dictionary<byte, string> BuildHuffmanTable(Node root)
@@ -242,30 +249,6 @@ namespace Zipper
             return L;
 
         }
-        /// <summary>
-        /// This method creates a binary tree (typically Huffman tree)
-        /// by combining nodes based on their frequencies
-        /// </summary>
-        /*internal static Node CreateTree(Node Head)
-        {
-            DoublyLinkedList L = new DoublyLinkedList();
-            // Traverse the list, merging nodes to form the Huffman tree
-            Node current = Head;
-            while (current != null && current.Next != null)
-            {
-                // Create a new node that combines the current node and the next node's frequencies
-                Node newNode = new Node(55, current.Frequency + current.Next.Frequency);
-                newNode.Left = current;  // The left child of the new node is the current node
-                newNode.Right = current.Next;  // The right child of the new node is the next node
-
-                // Insert the new combined node back into the list (sorted by frequency)
-                L.AddInSequence(newNode);
-
-                // Move the pointer 'current' forward by two steps (skip the next node because it's already merged)
-                current = current.Next.Next;  // Move two steps to continue combining the next two nodes
-            }
-            return L.Tail;
-        }*/
 
         /// <summary>
         /// read a file as byte[]

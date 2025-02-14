@@ -22,9 +22,13 @@ namespace Zipper
             //Node tail = stats.CreateTree(DLL.Head);
             Dictionary<byte, string> table = stats.BuildHuffmanTable(DLL.Tail);
             byte[] byArr = stats.translate(file, table);
-            string s = stats.saveTree(DLL.Tail);
+            byte[] s = stats.saveTree(DLL.Tail);
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            string bits=stats.convertBt8b(172);
+        }
     }
 }
 

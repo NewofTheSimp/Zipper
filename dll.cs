@@ -89,21 +89,23 @@ namespace Zipper
         }
     }
 
-    /// <summary>
-    ///     return byte[] by translating the file (converting each byte by it bitpattern in the table
-    /// </summary>
-    /// <algo>
-    /// Iterate bytewise throug the file adding the new bitvalue from the table to a string.
-    /// determine extra bits such that we get a stringlength which is a multiple of 8
-    /// convert string to byte[]
-    /// </algo>
+
     public class stats
     {
+        /// <summary>
+        ///     return byte[] by translating the file (converting each byte by it bitpattern in the table
+        /// </summary>
+        /// <algo>
+        /// Iterate bytewise throug the file adding the new bitvalue from the table to a string.
+        /// determine extra bits such that we get a stringlength which is a multiple of 8
+        /// convert string to byte[]
+        /// </algo>
         internal static byte[] translate(byte[] f, Dictionary<byte, string> table)
         {
             int x = 0;
             string t = "";
             for (int i = 0; i < f.Length; i++)  t += table[f[i]];
+
             x = 8 - t.Length % 8;
             for (int i = 0; i < x; i++) t += "0";
             
@@ -113,6 +115,32 @@ namespace Zipper
             for (int i = 0; i < byteCount; i++)
             {
                 bArr[i] =convert8bB(t.Substring(i * 8, 8));
+            }
+            bArr[byteCount] = (byte)x;
+            return bArr;
+        }
+        /// <summary>
+        ///     return byte[] by translating the file (converting each byte by it bitpattern in the table
+        /// </summary>
+        /// <algo>
+        /// Iterate bytewise throug the file adding the new bitvalue from the table to a string.
+        /// determine extra bits such that we get a stringlength which is a multiple of 8
+        /// convert string to byte[]
+        /// </algo>
+        internal static byte[] translate(string bitString)
+        {
+            int x = 0;
+
+
+            x = 8 - bitString.Length % 8;
+            for (int i = 0; i < x; i++) bitString += "0";
+
+
+            int byteCount = bitString.Length / 8;
+            byte[] bArr = new byte[byteCount + 1];
+            for (int i = 0; i < byteCount; i++)
+            {
+                bArr[i] = convert8bB(bitString.Substring(i * 8, 8));
             }
             bArr[byteCount] = (byte)x;
             return bArr;
@@ -190,32 +218,32 @@ namespace Zipper
         ///     assign a 0 for a non-leaf and then go down in the order left right
         ///     and a 1 for a leaf node + the normal bitcode of the byte of that node
         /// </algo>
-        public static void rsaveTree(Node n, string s)
+        public static void rsaveTree(Node n) 
         {
             // Leaf node
             if (n.Left == null)
             {
-                s += '1';
+                s += "1";
                 s += convertBt8b(n.Key);
             }
             else    //non-leaf
             {
-                s += '0';
-                rsaveTree(n.Left, s);
-                rsaveTree(n.Right, s);
+                s += "0";
+                rsaveTree(n.Left);
+                rsaveTree(n.Right);
             }
         }
 
         /// <summary>
         /// convert byte to 8 bits
         /// </summary>
-        private static string convertBt8b(byte key)
+        public static string convertBt8b(byte key)
         {
             string str = "";
-            byte value = key; // 00000101 in binary
+            byte value = key; 
             for (int i = 7; i >= 0; i--)
             {
-                int bit = (value >> i) & 1; // Extract each bit
+                int bit = (value >> i) & 1; 
                 str += bit;
             }
             return str;
@@ -262,14 +290,18 @@ namespace Zipper
             }
             return null;
         }
+
+
+        static string s = "";
         /// <summary>
         /// return string that saves the tree structure with the byte values (not the freq)
         /// </summary>
-        internal static string saveTree(Node tail)
+        internal static byte[] saveTree(Node tail)
         {
-            string s = "";
-            rsaveTree(tail, s);
-            return s;
+            s = "";
+            rsaveTree(tail);
+            byte[] btArr = translate(s);
+            return btArr;
         }
     }
 

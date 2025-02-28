@@ -129,9 +129,8 @@ namespace Zipper
         /// </algo>
         internal static byte[] translate(string bitString)
         {
+
             int x = 0;
-
-
             x = 8 - bitString.Length % 8;
             for (int i = 0; i < x; i++) bitString += "0";
 
@@ -303,7 +302,85 @@ namespace Zipper
             byte[] btArr = translate(s);
             return btArr;
         }
-    }
+    
 
+        public static void Compress(string inputFile, string outputFile)
+        {
+            byte[] fileBytes = File.ReadAllBytes(inputFile);
+            uint[] freq = countEachByte(fileBytes);
+            DoublyLinkedList list = makeDLL(freq);
+            list = makeDLLHuffman(list);
+            Node root = list.Tail;
+            var huffmanTable = BuildHuffmanTable(root);
+            byte[] encodedBytes = translate(fileBytes, huffmanTable);
+            byte[] treeBytes = saveTree(root);
+            using (FileStream fs = new FileStream(outputFile, FileMode.Create))
+            {
+                fs.Write(treeBytes, 0, treeBytes.Length);
+                fs.Write(encodedBytes, 0, encodedBytes.Length);
+            }
+        }
+
+        public static void Decompress(string compressedFile, string outputFile)
+        {
+            byte[] compressedData = File.ReadAllBytes(compressedFile);
+            int treeDataLength = getTreeSize(compressedData);
+            Node root = rebuildTree(compressedData, treeDataLength);
+            byte[] decompressedData = decode(root, compressedData.Skip(treeDataLength).ToArray());
+            File.WriteAllBytes(outputFile, decompressedData);
+        }
+
+        public static int getTreeSize(byte[] compressedData)
+        {
+            // Extracts the size of the Huffman tree from the compressed data
+            return BitConverter.ToInt32(compressedData, 0);
+        }
+
+        public static Node rebuildTree(byte[] compressedData, int treeDataLength)
+        {
+            // Reconstructs the Huffman tree from the stored tree bytes
+            string treeStructure = string.Join("", compressedData.Skip(4).Take(treeDataLength).Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
+            int index = 0;
+            return rebuildTreeRecursive(treeStructure, ref index);
+        }
+
+        private static Node rebuildTreeRecursive(string treeStructure, ref int index)
+        {
+            if (index >= treeStructure.Length)
+                return null;
+
+            if (treeStructure[index] == '1')
+            {
+                index++;
+                byte value = Convert.ToByte(treeStructure.Substring(index, 8), 2);
+                index += 8;
+                return new Node(value, 0);
+            }
+
+            index++;
+            Node left = rebuildTreeRecursive(treeStructure, ref index);
+            Node right = rebuildTreeRecursive(treeStructure, ref index);
+            return new Node(0, 0) { Left = left, Right = right };
+        }
+
+        public static byte[] decode(Node root, byte[] encodedData)
+        {
+            List<byte> decodedBytes = new List<byte>();
+            Node current = root;
+            string bitString = string.Join("", encodedData.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
+
+            foreach (char bit in bitString)
+            {
+                current = (bit == '0') ? current.Left : current.Right;
+
+                if (current.Left == null && current.Right == null)
+                {
+                    decodedBytes.Add(current.Key);
+                    current = root;
+                }
+            }
+            return decodedBytes.ToArray();
+        }
+    }
 }
 

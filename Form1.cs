@@ -13,21 +13,32 @@ namespace Zipper
             InitializeComponent();
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            byte[] file = stats.readFileAsBytes();
-            uint[] freq = stats.countEachByte(file);
-            DoublyLinkedList DLL = stats.makeDLL(freq);
-            DLL = stats.makeDLLHuffman(DLL);
-            //Node tail = stats.CreateTree(DLL.Head);
-            Dictionary<byte, string> table = stats.BuildHuffmanTable(DLL.Tail);
-            byte[] byArr = stats.translate(file, table);
-            byte[] s = stats.saveTree(DLL.Tail);
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
-            string bits=stats.convertBt8b(172);
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    stats.Compress(openFileDialog.FileName, saveFileDialog.FileName);
+                    MessageBox.Show("File successfully compressed!");
+                }
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+            {
+                SaveFileDialog saveFileDialog = new SaveFileDialog();
+                if (saveFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    stats.Decompress(openFileDialog.FileName, saveFileDialog.FileName);
+                    MessageBox.Show("File successfully decompressed!");
+                }
+            }
         }
     }
 }

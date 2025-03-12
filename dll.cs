@@ -1,15 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Drawing.Design;
-using System.Xml.Linq;
-using System.DirectoryServices.ActiveDirectory;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Zipper
 {
@@ -51,7 +44,6 @@ namespace Zipper
 
         //methods**************************************************************
 
-
         /// <summary>
         /// Add a new node into the doubly linked list asc based on frequency
         /// </summary>
@@ -89,7 +81,6 @@ namespace Zipper
         }
     }
 
-
     public class stats
     {
         /// <summary>
@@ -104,21 +95,21 @@ namespace Zipper
         {
             int x = 0;
             string t = "";
-            for (int i = 0; i < f.Length; i++)  t += table[f[i]];
+            for (int i = 0; i < f.Length; i++) t += table[f[i]];
 
             x = 8 - t.Length % 8;
             for (int i = 0; i < x; i++) t += "0";
-            
 
             int byteCount = t.Length / 8;
-            byte[] bArr = new byte[byteCount+1];
+            byte[] bArr = new byte[byteCount + 1];
             for (int i = 0; i < byteCount; i++)
             {
-                bArr[i] =convert8bB(t.Substring(i * 8, 8));
+                bArr[i] = convert8bB(t.Substring(i * 8, 8));
             }
             bArr[byteCount] = (byte)x;
             return bArr;
         }
+
         /// <summary>
         ///     return byte[] by translating the file (converting each byte by it bitpattern in the table
         /// </summary>
@@ -129,11 +120,9 @@ namespace Zipper
         /// </algo>
         internal static byte[] translate(string bitString)
         {
-
             int x = 0;
             x = 8 - bitString.Length % 8;
             for (int i = 0; i < x; i++) bitString += "0";
-
 
             int byteCount = bitString.Length / 8;
             byte[] bArr = new byte[byteCount + 1];
@@ -150,12 +139,11 @@ namespace Zipper
             int cnt = 0, w = 128;
             for (int b = 0; b < s.Length; b++)
             {
-                if (s[b] == '1') cnt +=w;
-                w/= 2;
+                if (s[b] == '1') cnt += w;
+                w /= 2;
             }
             return (byte)cnt;
         }
-
 
         /// <summary>
         ///     return how often each byte occurs in file
@@ -184,10 +172,6 @@ namespace Zipper
             return L;
         }
 
-  
-
-
-
         internal static void BuildTableRecursive(Node tail, string code, Dictionary<byte, string> huffmanTable)
         {
             if (tail == null) return;
@@ -200,8 +184,8 @@ namespace Zipper
 
             BuildTableRecursive(tail.Left, code + "1", huffmanTable);
             BuildTableRecursive(tail.Right, code + "0", huffmanTable);
-
         }
+
         /// <summary>
         ///     return string that saves the tree structure with the byte values (not the freq)
         /// </summary>
@@ -210,7 +194,7 @@ namespace Zipper
         ///     assign a 0 for a non-leaf and then go down in the order left right
         ///     and a 1 for a leaf node + the normal bitcode of the byte of that node
         /// </algo>
-        public static void rsaveTree(Node n) 
+        public static void rsaveTree(Node n)
         {
             // Leaf node
             if (n.Left == null)
@@ -232,10 +216,10 @@ namespace Zipper
         public static string convertBt8b(byte key)
         {
             string str = "";
-            byte value = key; 
+            byte value = key;
             for (int i = 7; i >= 0; i--)
             {
-                int bit = (value >> i) & 1; 
+                int bit = (value >> i) & 1;
                 str += bit;
             }
             return str;
@@ -258,16 +242,13 @@ namespace Zipper
             var newNode = new Node(55, current.Frequency + current.Next.Frequency);
             while (current.Next != null)
             {
-
                 newNode = new Node(55, current.Frequency + current.Next.Frequency);
                 newNode.Left = current;
                 newNode.Right = current.Next;
                 L.AddInSequence(newNode);
                 current = current.Next.Next;
-
             }
             return L;
-
         }
 
         /// <summary>
@@ -283,7 +264,6 @@ namespace Zipper
             return null;
         }
 
-
         static string s = "";
         /// <summary>
         /// return string that saves the tree structure with the byte values (not the freq)
@@ -295,7 +275,6 @@ namespace Zipper
             byte[] btArr = translate(s);
             return btArr;
         }
-    
 
         public static void Compress(string inputFile, string outputFile)
         {
@@ -311,7 +290,6 @@ namespace Zipper
             writer[0] = (byte)treeBytes.Length;
             writer[1] = (byte)encodedBytes.Length;
 
-
             using (FileStream fs = new FileStream(outputFile, FileMode.Create))
             {
                 fs.Write(writer, 0, writer.Length);
@@ -320,57 +298,78 @@ namespace Zipper
             }
         }
 
-        public static void Decompress(string compressedFile, string outputFile)
+        public static void Decompress(string inputFile, string outputFile)
         {
-            byte[] compressedData = File.ReadAllBytes(compressedFile);
-            int treeDataLength = getTreeSize(compressedData);
-            Node root = rebuildTree(compressedData, treeDataLength);
-            byte[] decompressedData = decode(root, compressedData.Skip(treeDataLength).ToArray());
-            File.WriteAllBytes(outputFile, decompressedData);
+            byte[] fileBytes = File.ReadAllBytes(inputFile);
+            int treeLength = fileBytes[0];
+            int encodedLength = fileBytes[1];
+
+            byte[] treeBytes = new byte[treeLength];
+            Array.Copy(fileBytes, 2, treeBytes, 0, treeLength);
+
+            byte[] encodedBytes = new byte[encodedLength];
+            Array.Copy(fileBytes, 2 + treeLength, encodedBytes, 0, encodedLength);
+
+            Node root = rebuildTree(treeBytes);
+            byte[] decodedBytes = decode(encodedBytes, root);
+
+            File.WriteAllBytes(outputFile, decodedBytes);
         }
 
-        public static int getTreeSize(byte[] compressedData)
+        private static Node rebuildTree(byte[] treeBytes)
         {
-            // Extracts the size of the Huffman tree from the compressed data
-            return BitConverter.ToInt32(compressedData, 0);
-        }
-
-        public static Node rebuildTree(byte[] compressedData, int treeDataLength)
-        {
-            // Reconstructs the Huffman tree from the stored tree bytes
-            string treeStructure = string.Join("", compressedData.Skip(4).Take(treeDataLength).Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
-            int index = 0;
-            return rebuildTreeRecursive(treeStructure, ref index);
-        }
-
-        private static Node rebuildTreeRecursive(string treeStructure, ref int index)
-        {
-            if (index >= treeStructure.Length)
-                return null;
-
-            if (treeStructure[index] == '1')
+            string treeBits = "";
+            foreach (byte b in treeBytes)
             {
-                index++;
-                byte value = Convert.ToByte(treeStructure.Substring(index, 8), 2);
-                index += 8;
-                return new Node(value, 0);
+                treeBits += convertBt8b(b);
             }
 
-            index++;
-            Node left = rebuildTreeRecursive(treeStructure, ref index);
-            Node right = rebuildTreeRecursive(treeStructure, ref index);
-            return new Node(0, 0) { Left = left, Right = right };
+            int index = 0;
+            return rebuildTreeRecursive(treeBits, ref index);
         }
 
-        public static byte[] decode(Node root, byte[] encodedData)
+        private static Node rebuildTreeRecursive(string treeBits, ref int index)
         {
+            if (index >= treeBits.Length) return null;
+
+            if (treeBits[index] == '1')
+            {
+                index++;
+                string byteBits = treeBits.Substring(index, 8);
+                index += 8;
+                byte key = convert8bB(byteBits);
+                return new Node(key, 0);
+            }
+            else
+            {
+                index++;
+                Node node = new Node(0, 0);
+                node.Left = rebuildTreeRecursive(treeBits, ref index);
+                node.Right = rebuildTreeRecursive(treeBits, ref index);
+                return node;
+            }
+        }
+
+        private static byte[] decode(byte[] encodedBytes, Node root)
+        {
+            string bitString = "";
+            foreach (byte b in encodedBytes)
+            {
+                bitString += convertBt8b(b);
+            }
+
             List<byte> decodedBytes = new List<byte>();
             Node current = root;
-            string bitString = string.Join("", encodedData.Select(b => Convert.ToString(b, 2).PadLeft(8, '0')));
-
             foreach (char bit in bitString)
             {
-                current = (bit == '0') ? current.Left : current.Right;
+                if (bit == '0')
+                {
+                    current = current.Right;
+                }
+                else
+                {
+                    current = current.Left;
+                }
 
                 if (current.Left == null && current.Right == null)
                 {
@@ -378,8 +377,8 @@ namespace Zipper
                     current = root;
                 }
             }
+
             return decodedBytes.ToArray();
         }
     }
 }
-

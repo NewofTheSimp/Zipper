@@ -38,9 +38,9 @@
               "Title": "dll.cs",
               "DocumentMoniker": "C:\\Users\\Gebruiker\\Documents\\GitHub\\Zipper\\dll.cs",
               "RelativeDocumentMoniker": "dll.cs",
-              "ToolTip": "C:\\Users\\Gebruiker\\Documents\\GitHub\\Zipper\\dll.cs",
-              "RelativeToolTip": "dll.cs",
-              "ViewState": "AgIAAGkBAAAAAAAAAAAnwHUBAAAQAAAAAAAAAA==",
+              "ToolTip": "C:\\Users\\Gebruiker\\Documents\\GitHub\\Zipper\\dll.cs*",
+              "RelativeToolTip": "dll.cs*",
+              "ViewState": "AgIAACoBAAAAAAAAAAAtwD0BAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-28T10:27:34.834Z",
               "EditorCaption": ""
@@ -53,7 +53,7 @@
               "RelativeDocumentMoniker": "Form1.cs",
               "ToolTip": "C:\\Users\\Gebruiker\\Documents\\GitHub\\Zipper\\Form1.cs",
               "RelativeToolTip": "Form1.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAxwA4AAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAABAAAAAAAAAAAAAQwA4AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-02-26T13:29:22.114Z",
               "EditorCaption": ""
@@ -68,8 +68,7 @@
               "RelativeToolTip": "Form1.Designer.cs",
               "ViewState": "AgIAACUAAAAAAAAAAAAkwDQAAAArAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-02-12T13:14:29.212Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-02-12T13:14:29.212Z"
             },
             {
               "$type": "Document",
@@ -81,8 +80,7 @@
               "RelativeToolTip": ".gitattributes",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-01-08T13:59:42.142Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-01-08T13:59:42.142Z"
             },
             {
               "$type": "Document",
@@ -93,8 +91,7 @@
               "ToolTip": "C:\\Users\\Gebruiker\\Documents\\GitHub\\Zipper\\Form1.cs [Design]",
               "RelativeToolTip": "Form1.cs [Design]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-01-29T13:39:58.261Z",
-              "EditorCaption": " [Design]"
+              "WhenOpened": "2025-01-29T13:39:58.261Z"
             }
           ]
         }

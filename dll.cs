@@ -314,7 +314,7 @@ namespace Zipper
 
             using (FileStream fs = new FileStream(outputFile, FileMode.Create))
             {
-                fs.Write(writer, 0, treeBytes.Length);
+                fs.Write(writer, 0, writer.Length);
                 fs.Write(treeBytes, 0, treeBytes.Length);
                 fs.Write(encodedBytes, 0, encodedBytes.Length);
             }

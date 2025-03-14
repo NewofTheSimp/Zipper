@@ -387,6 +387,11 @@ namespace Zipper
                 treeBits += convertBt8b(b);
             }
 
+
+            // Remove padding bits
+            int paddingBits = treeBytes[treeBytes.Length - 1];
+            treeBits = treeBits.Substring(0, treeBits.Length - paddingBits);
+
             int index = 0;
             return rebuildTreeRecursive(treeBits, ref index);
         }

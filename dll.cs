@@ -93,20 +93,29 @@ namespace Zipper
         /// </algo>
         internal static byte[] translate(byte[] f, Dictionary<byte, string> table)
         {
-            int x = 0;
-            string t = "";
-            for (int i = 0; i < f.Length; i++) t += table[f[i]];
+            string bitString = "";
+            for (int i = 0; i < f.Length; i++)
+            {
+                bitString += table[f[i]];
+            }
 
-            x = 8 - t.Length % 8;
-            for (int i = 0; i < x; i++) t += "0";
+            // Add padding bits to make the length a multiple of 8
+            int paddingBits = 8 - bitString.Length % 8;
+            if (paddingBits != 8)
+            {
+                bitString += new string('0', paddingBits);
+            }
 
-            int byteCount = t.Length / 8;
+            // Convert the bit string to a byte array
+            int byteCount = bitString.Length / 8;
             byte[] bArr = new byte[byteCount + 1];
             for (int i = 0; i < byteCount; i++)
             {
-                bArr[i] = convert8bB(t.Substring(i * 8, 8));
+                bArr[i] = convert8bB(bitString.Substring(i * 8, 8));
             }
-            bArr[byteCount] = (byte)x;
+
+            // Store the number of padding bits in the last byte
+            bArr[byteCount] = (byte)paddingBits;
             return bArr;
         }
 
@@ -238,16 +247,28 @@ namespace Zipper
         /// </summary>
         internal static DoublyLinkedList makeDLLHuffman(DoublyLinkedList L)
         {
-            Node current = L.Head;
-            var newNode = new Node(55, current.Frequency + current.Next.Frequency);
-            while (current.Next != null)
+            while (L.Head != L.Tail)
             {
-                newNode = new Node(55, current.Frequency + current.Next.Frequency);
-                newNode.Left = current;
-                newNode.Right = current.Next;
+                // Take the two nodes with the smallest frequencies
+                Node first = L.Head;
+                Node second = L.Head.Next;
+
+                // Create a new node with the combined frequency
+                Node newNode = new Node(55, first.Frequency + second.Frequency);
+                newNode.Left = first;
+                newNode.Right = second;
+
+                // Remove the two nodes from the list
+                L.Head = second.Next;
+                if (L.Head != null)
+                {
+                    L.Head.Previous = null;
+                }
+
+                // Add the new node back into the list in the correct position
                 L.AddInSequence(newNode);
-                current = current.Next.Next;
             }
+
             return L;
         }
 
@@ -286,13 +307,12 @@ namespace Zipper
             var huffmanTable = BuildHuffmanTable(root);
             byte[] encodedBytes = translate(fileBytes, huffmanTable);
             byte[] treeBytes = saveTree(root);
-            byte[] writer = new byte[2];
-            writer[0] = (byte)treeBytes.Length;
-            writer[1] = (byte)encodedBytes.Length;
 
+            // Write the tree length, encoded length, tree, and encoded data to the output file
             using (FileStream fs = new FileStream(outputFile, FileMode.Create))
             {
-                fs.Write(writer, 0, writer.Length);
+                fs.WriteByte((byte)treeBytes.Length);
+                fs.WriteByte((byte)encodedBytes.Length);
                 fs.Write(treeBytes, 0, treeBytes.Length);
                 fs.Write(encodedBytes, 0, encodedBytes.Length);
             }
@@ -357,6 +377,10 @@ namespace Zipper
             {
                 bitString += convertBt8b(b);
             }
+
+            // Remove padding bits
+            int paddingBits = encodedBytes[encodedBytes.Length - 1];
+            bitString = bitString.Substring(0, bitString.Length - paddingBits);
 
             List<byte> decodedBytes = new List<byte>();
             Node current = root;

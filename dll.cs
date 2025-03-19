@@ -344,8 +344,20 @@ namespace Zipper
             // Write the tree length, encoded length, tree, and encoded data to the output file
             using (FileStream fs = new FileStream(outputFile, FileMode.Create))
             {
-                fs.WriteByte((byte)treeBytes.Length);
-                fs.WriteByte((byte)encodedBytes.Length);
+                if (treeBytes.Length < 256)
+                {
+                    fs.WriteByte(0);
+                    fs.WriteByte((byte)treeBytes.Length);
+                }
+                else
+                {
+                    int x = treeBytes.Length / 256; 
+                    int z = treeBytes.Length % 256; 
+
+                    fs.WriteByte((byte)z); 
+                    fs.WriteByte((byte)x);  
+                }
+
                 fs.Write(treeBytes, 0, treeBytes.Length);
                 fs.Write(encodedBytes, 0, encodedBytes.Length);
             }
@@ -359,8 +371,8 @@ namespace Zipper
         public static void Decompress(string inputFile, string outputFile)
         {
             byte[] fileBytes = File.ReadAllBytes(inputFile);
-            int treeLength = fileBytes[0];
-            int encodedLength = fileBytes[1];
+            int treeLength = fileBytes[1];
+            int encodedLength = fileBytes.Length - treeLength - 2;
 
             byte[] treeBytes = new byte[treeLength];
             Array.Copy(fileBytes, 2, treeBytes, 0, treeLength);
@@ -382,15 +394,10 @@ namespace Zipper
         private static Node rebuildTree(byte[] treeBytes)
         {
             string treeBits = "";
-            foreach (byte b in treeBytes)
+            for (int i = 0; i < treeBytes.Length - 1; i++)
             {
-                treeBits += convertBt8b(b);
+                treeBits += convertBt8b(treeBytes[i]);
             }
-
-
-            // Remove padding bits
-            int paddingBits = treeBytes[treeBytes.Length - 1];
-            treeBits = treeBits.Substring(0, treeBits.Length - paddingBits);
 
             int index = 0;
             return rebuildTreeRecursive(treeBits, ref index);
@@ -433,14 +440,10 @@ namespace Zipper
         private static byte[] decode(byte[] encodedBytes, Node root)
         {
             string bitString = "";
-            foreach (byte b in encodedBytes)
+            for (int i = 0; i < encodedBytes.Length-1; i++)
             {
-                bitString += convertBt8b(b);
+                bitString += convertBt8b(encodedBytes[i]);
             }
-
-            // Remove padding bits
-            int paddingBits = encodedBytes[encodedBytes.Length - 1];
-            bitString = bitString.Substring(0, bitString.Length - paddingBits);
 
             List<byte> decodedBytes = new List<byte>();
             Node current = root;

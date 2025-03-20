@@ -399,6 +399,12 @@ namespace Zipper
                 treeBits += convertBt8b(treeBytes[i]);
             }
 
+            // Remove padding bits
+            int paddingBits = treeBytes[treeBytes.Length - 1];
+            treeBits = treeBits.Substring(0, treeBits.Length - paddingBits);
+
+            // The last byte value is the number of bits to be substracted from the bit string.
+
             int index = 0;
             return rebuildTreeRecursive(treeBits, ref index);
         }
@@ -440,10 +446,14 @@ namespace Zipper
         private static byte[] decode(byte[] encodedBytes, Node root)
         {
             string bitString = "";
+  
             for (int i = 0; i < encodedBytes.Length-1; i++)
             {
                 bitString += convertBt8b(encodedBytes[i]);
             }
+            // The last byte value is the number of bits to be substracted from the bit string.
+            int paddingBits = encodedBytes[encodedBytes.Length - 1];
+            bitString = bitString.Substring(0, bitString.Length - paddingBits);
 
             List<byte> decodedBytes = new List<byte>();
             Node current = root;

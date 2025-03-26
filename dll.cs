@@ -377,9 +377,14 @@ namespace Zipper
         {
             byte[] fileBytes = File.ReadAllBytes(inputFile);
             int treeLength = fileBytes[0];
-            if (treeLength == 0) {
+            if (treeLength == 0)
+            {
                 treeLength = fileBytes[1];
-            } 
+            }
+            else 
+            {
+                treeLength = fileBytes[0] * 256;
+            }
 
             int encodedLength = fileBytes.Length - treeLength - 2;
 

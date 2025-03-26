@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Zipper")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2734ab26740812639f997d452cfbe6ae2f3c9ee8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+75dd0abef5d7f7dc3df8d3d1bec10c5a250049de")]
 [assembly: System.Reflection.AssemblyProductAttribute("Zipper")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Zipper")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

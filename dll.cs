@@ -340,7 +340,12 @@ namespace Zipper
             var huffmanTable = BuildHuffmanTable(root);
             byte[] encodedBytes = translate(fileBytes, huffmanTable);
             byte[] treeBytes = saveTree(root);
+            write2file(outputFile, encodedBytes, treeBytes);
 
+
+        }
+        public static void write2file(string outputFile, byte[] encodedBytes, byte[] treeBytes) 
+        {
             // Write the tree length, encoded length, tree, and encoded data to the output file
             using (FileStream fs = new FileStream(outputFile, FileMode.Create))
             {
@@ -351,11 +356,11 @@ namespace Zipper
                 }
                 else
                 {
-                    int x = treeBytes.Length / 256; 
-                    int z = treeBytes.Length % 256; 
+                    int x = treeBytes.Length / 256;
+                    int z = treeBytes.Length % 256;
 
-                    fs.WriteByte((byte)z); 
-                    fs.WriteByte((byte)x);  
+                    fs.WriteByte((byte)x);
+                    fs.WriteByte((byte)z);
                 }
 
                 fs.Write(treeBytes, 0, treeBytes.Length);
@@ -371,7 +376,11 @@ namespace Zipper
         public static void Decompress(string inputFile, string outputFile)
         {
             byte[] fileBytes = File.ReadAllBytes(inputFile);
-            int treeLength = fileBytes[1];
+            int treeLength = fileBytes[0];
+            if (treeLength == 0) {
+                treeLength = fileBytes[1];
+            } 
+
             int encodedLength = fileBytes.Length - treeLength - 2;
 
             byte[] treeBytes = new byte[treeLength];

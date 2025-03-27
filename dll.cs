@@ -6,73 +6,71 @@ using System.Windows.Forms;
 
 namespace Zipper
 {
-    // Node class for Doubly Linked List storing byte Key and Frequency
+    /// <summary>
+    /// Represents a node in the Huffman tree and doubly linked list
+    /// </summary>
     public class Node
     {
-        public byte Key;          // Stores the byte key (e.g., the actual character or data byte)
-        public uint Frequency;    // Stores the frequency of the byte (how many times this byte appears)
-        public Node Next;         // Points to the next node in the doubly linked list
-        public Node Previous;     // Points to the previous node in the doubly linked list
-        public Node Left;         // Points to the left node, typically used for the tree structure (Huffman tree)
-        public Node Right;        // Points to the right node, typically used for the tree structure (Huffman tree)
+        public byte Key;          // The byte value this node represents
+        public uint Frequency;    // Frequency of this byte in the input
+        public Node Next;        // Next node in doubly linked list
+        public Node Previous;    // Previous node in doubly linked list
+        public Node Left;        // Left child in Huffman tree
+        public Node Right;       // Right child in Huffman tree
 
-        // Constructor to initialize a Node with a given key and frequency
         public Node(byte key, uint frequency)
         {
-            Key = key;            // Set the byte key
-            Frequency = frequency;// Set the frequency of the byte
-            Next = null;         // Initially, no next node
-            Previous = null;      // Initially, no previous node
-            Left = null;         // Initially, no left child (used in Huffman tree)
-            Right = null;         // Initially, no right child (used in Huffman tree)
+            Key = key;
+            Frequency = frequency;
+            Next = null;
+            Previous = null;
+            Left = null;
+            Right = null;
         }
     }
 
-    // Doubly Linked List class for byte Key-Frequency pairs
+    /// <summary>
+    /// Doubly linked list implementation for building Huffman tree
+    /// </summary>
     public class DoublyLinkedList
     {
-        // Properties
-        public Node Head;  // Points to the head (first node) of the list
-        public Node Tail;  // Points to the tail (last node) of the list
+        public Node Head;  // First node in the list
+        public Node Tail;  // Last node in the list
 
-        // Constructor
         public DoublyLinkedList()
         {
-            Head = null;  // Initially, no head node
-            Tail = null;  // Initially, no tail node
+            Head = null;
+            Tail = null;
         }
 
-        // Methods
-
         /// <summary>
-        /// Add a new node into the doubly linked list in ascending order based on frequency
+        /// Adds a node to the list while maintaining frequency order (ascending)
         /// </summary>
-        /// <param name="n">The node to add</param>
         public void AddInSequence(Node n)
         {
-            // If the list is empty, set the new node as both head and tail
             if (Head == null)
             {
+                // Empty list case
                 Head = n;
                 Tail = n;
             }
-            // If the new node's frequency is less than or equal to the head's frequency, insert at the beginning
             else if (n.Frequency <= Head.Frequency)
             {
+                // Insert at beginning
                 n.Next = Head;
                 Head.Previous = n;
                 Head = n;
             }
-            // If the new node's frequency is greater than the tail's frequency, insert at the end
             else if (n.Frequency > Tail.Frequency)
             {
+                // Insert at end
                 n.Previous = Tail;
                 Tail.Next = n;
                 Tail = n;
             }
-            // Otherwise, find the correct position in the middle of the list
             else
             {
+                // Insert in middle - find correct position
                 Node c = Head;
                 while (n.Frequency > c.Frequency) c = c.Next;
                 c.Previous.Next = n;
@@ -83,89 +81,101 @@ namespace Zipper
         }
     }
 
-    // Main class for Huffman compression and decompression
+    /// <summary>
+    /// Main class for Huffman compression and decompression operations
+    /// </summary>
     public class stats
     {
         /// <summary>
-        /// Translates a byte array into a compressed bit string using the Huffman table
+        /// Compresses input bytes using Huffman codes
         /// </summary>
-        /// <param name="f">The input byte array</param>
-        /// <param name="table">The Huffman table mapping bytes to bit strings</param>
-        /// <returns>The compressed byte array</returns>
-        internal static byte[] translate(byte[] f, Dictionary<byte, string> table)
+        /// <param name="f">Input byte array</param>
+        /// <param name="table">Huffman code lookup table</param>
+        /// <returns>Compressed byte array with padding info</returns>
+        internal static byte[] translate(byte[] f, Dictionary<byte, bool[]> table)
         {
-            string bitString = "";
-            // Iterate through each byte in the input array and append its Huffman code to the bit string
-            for (int i = 0; i < f.Length; i++)
+            // Calculate total bits needed for all Huffman codes
+            int totalBits = 0;
+            foreach (byte b in f)
             {
-                bitString += table[f[i]];
+                totalBits += table[b].Length;
             }
 
-            // Add padding bits to make the length a multiple of 8
-            int paddingBits = 8 - bitString.Length % 8;
-            if (paddingBits != 8)
+            // Calculate padding needed to make total bits a multiple of 8
+            int paddingBits = (8 - (totalBits % 8)) % 8;
+            totalBits += paddingBits;
+            int byteCount = totalBits / 8;
+
+            // Store all bits in a list for efficient appending
+            List<bool> bitList = new List<bool>(totalBits);
+            foreach (byte b in f)
             {
-                bitString += new string('0', paddingBits);
+                bitList.AddRange(table[b]);
             }
 
-            // Convert the bit string to a byte array
-            int byteCount = bitString.Length / 8;
+            // Add padding bits (0s)
+            for (int i = 0; i < paddingBits; i++)
+            {
+                bitList.Add(false);
+            }
+
+            // Convert bit list to byte array
             byte[] bArr = new byte[byteCount + 1];
             for (int i = 0; i < byteCount; i++)
             {
-                bArr[i] = convert8bB(bitString.Substring(i * 8, 8));
+                byte val = 0;
+                for (int j = 0; j < 8; j++)
+                {
+                    if (bitList[i * 8 + j])
+                    {
+                        val |= (byte)(1 << (7 - j));
+                    }
+                }
+                bArr[i] = val;
             }
 
-            // Store the number of padding bits in the last byte
+            // Store padding count in last byte
             bArr[byteCount] = (byte)paddingBits;
             return bArr;
         }
 
         /// <summary>
-        /// Converts a bit string into a byte array
+        /// Converts a bit array to a byte array with padding information
         /// </summary>
-        /// <param name="bitString">The input bit string</param>
-        /// <returns>The resulting byte array</returns>
-        internal static byte[] translate(string bitString)
+        internal static byte[] translate(bool[] bitArray)
         {
-            // Add padding bits to make the length a multiple of 8
-            int x = 0;
-            x = 8 - bitString.Length % 8;
-            for (int i = 0; i < x; i++) bitString += "0";
+            // Calculate padding needed
+            int paddingBits = (8 - (bitArray.Length % 8)) % 8;
+            int totalBits = bitArray.Length + paddingBits;
+            int byteCount = totalBits / 8;
 
-            // Convert the bit string to a byte array
-            int byteCount = bitString.Length / 8;
+            // Create padded bit array
+            bool[] paddedBits = new bool[totalBits];
+            Array.Copy(bitArray, paddedBits, bitArray.Length);
+
+            // Convert to bytes
             byte[] bArr = new byte[byteCount + 1];
             for (int i = 0; i < byteCount; i++)
             {
-                bArr[i] = convert8bB(bitString.Substring(i * 8, 8));
+                byte val = 0;
+                for (int j = 0; j < 8; j++)
+                {
+                    if (paddedBits[i * 8 + j])
+                    {
+                        val |= (byte)(1 << (7 - j));
+                    }
+                }
+                bArr[i] = val;
             }
-            // Store the number of padding bits in the last byte
-            bArr[byteCount] = (byte)x;
+
+            // Store padding count
+            bArr[byteCount] = (byte)paddingBits;
             return bArr;
         }
 
         /// <summary>
-        /// Converts an 8-bit binary string to a byte
+        /// Counts frequency of each byte in the input file
         /// </summary>
-        /// <param name="s">The 8-bit binary string</param>
-        /// <returns>The resulting byte</returns>
-        private static byte convert8bB(string s)
-        {
-            int cnt = 0, w = 128;
-            for (int b = 0; b < s.Length; b++)
-            {
-                if (s[b] == '1') cnt += w;
-                w /= 2;
-            }
-            return (byte)cnt;
-        }
-
-        /// <summary>
-        /// Counts the frequency of each byte in the input file
-        /// </summary>
-        /// <param name="file">The input byte array</param>
-        /// <returns>An array of frequencies indexed by byte value</returns>
         internal static uint[] countEachByte(byte[] file)
         {
             uint[] f = new uint[256];
@@ -174,10 +184,8 @@ namespace Zipper
         }
 
         /// <summary>
-        /// Creates a doubly linked list from the frequency array
+        /// Creates doubly linked list from frequency counts
         /// </summary>
-        /// <param name="freq">The frequency array</param>
-        /// <returns>The doubly linked list</returns>
         internal static DoublyLinkedList makeDLL(uint[] freq)
         {
             DoublyLinkedList L = new DoublyLinkedList();
@@ -193,102 +201,119 @@ namespace Zipper
         }
 
         /// <summary>
-        /// Recursively builds the Huffman table by traversing the Huffman tree
+        /// Recursively builds Huffman code table by traversing the tree
         /// </summary>
-        /// <param name="tail">The current node in the tree</param>
-        /// <param name="code">The current Huffman code</param>
-        /// <param name="huffmanTable">The Huffman table to populate</param>
-        internal static void BuildTableRecursive(Node tail, string code, Dictionary<byte, string> huffmanTable)
+        internal static void BuildTableRecursive(Node tail, bool[] code, List<bool> currentCode, Dictionary<byte, bool[]> huffmanTable)
         {
             if (tail == null) return;
 
-            // If the current node is a leaf, add its byte and Huffman code to the table
+            // Leaf node - store its code
             if (tail.Left == null && tail.Right == null)
             {
-                huffmanTable[tail.Key] = code;
+                huffmanTable[tail.Key] = currentCode.ToArray();
             }
 
-            // Traverse the left and right subtrees
-            BuildTableRecursive(tail.Left, code + "1", huffmanTable);
-            BuildTableRecursive(tail.Right, code + "0", huffmanTable);
+            // Traverse left with '1' added to code
+            if (tail.Left != null)
+            {
+                var leftCode = new List<bool>(currentCode);
+                leftCode.Add(true);
+                BuildTableRecursive(tail.Left, code, leftCode, huffmanTable);
+            }
+
+            // Traverse right with '0' added to code
+            if (tail.Right != null)
+            {
+                var rightCode = new List<bool>(currentCode);
+                rightCode.Add(false);
+                BuildTableRecursive(tail.Right, code, rightCode, huffmanTable);
+            }
         }
 
         /// <summary>
-        /// Recursively saves the Huffman tree structure as a bit string
+        /// Recursively serializes Huffman tree structure to bit list
         /// </summary>
-        /// <param name="n">The current node in the tree</param>
-        public static void rsaveTree(Node n)
+        public static void rsaveTree(Node n, List<bool> treeBits)
         {
-            // If the current node is a leaf, append '1' followed by its byte value
             if (n.Left == null)
             {
-                s += "1";
-                s += convertBt8b(n.Key);
+                // Leaf node - mark with 1 followed by 8-bit byte value
+                treeBits.Add(true);
+                treeBits.AddRange(ByteToBits(n.Key));
             }
-            // If the current node is not a leaf, append '0' and traverse its children
             else
             {
-                s += "0";
-                rsaveTree(n.Left);
-                rsaveTree(n.Right);
+                // Internal node - mark with 0 then serialize children
+                treeBits.Add(false);
+                rsaveTree(n.Left, treeBits);
+                rsaveTree(n.Right, treeBits);
             }
         }
 
         /// <summary>
-        /// Converts a byte to an 8-bit binary string
+        /// Converts byte to bit array (MSB first)
         /// </summary>
-        /// <param name="key">The byte to convert</param>
-        /// <returns>The 8-bit binary string</returns>
-        public static string convertBt8b(byte key)
+        public static bool[] ByteToBits(byte b)
         {
-            string str = "";
-            byte value = key;
-            for (int i = 7; i >= 0; i--)
+            bool[] bits = new bool[8];
+            for (int i = 0; i < 8; i++)
             {
-                int bit = (value >> i) & 1;
-                str += bit;
+                bits[i] = (b & (1 << (7 - i))) != 0;
             }
-            return str;
+            return bits;
         }
 
         /// <summary>
-        /// Builds the Huffman table from the Huffman tree
+        /// Converts bit array to byte (MSB first)
         /// </summary>
-        /// <param name="root">The root of the Huffman tree</param>
-        /// <returns>The Huffman table</returns>
-        public static Dictionary<byte, string> BuildHuffmanTable(Node root)
+        public static byte BitsToByte(bool[] bits)
         {
-            var huffmanTable = new Dictionary<byte, string>();
-            BuildTableRecursive(root, "", huffmanTable);
+            byte val = 0;
+            for (int i = 0; i < 8 && i < bits.Length; i++)
+            {
+                if (bits[i])
+                {
+                    val |= (byte)(1 << (7 - i));
+                }
+            }
+            return val;
+        }
+
+        /// <summary>
+        /// Builds Huffman code table from tree root
+        /// </summary>
+        public static Dictionary<byte, bool[]> BuildHuffmanTable(Node root)
+        {
+            var huffmanTable = new Dictionary<byte, bool[]>();
+            BuildTableRecursive(root, new bool[0], new List<bool>(), huffmanTable);
             return huffmanTable;
         }
 
         /// <summary>
-        /// Constructs the Huffman tree from the doubly linked list
+        /// Constructs Huffman tree from frequency-sorted list
         /// </summary>
-        /// <param name="L">The doubly linked list</param>
-        /// <returns>The modified doubly linked list with the Huffman tree</returns>
         internal static DoublyLinkedList makeDLLHuffman(DoublyLinkedList L)
         {
+            // Combine nodes until only one remains (the root)
             while (L.Head != L.Tail)
             {
-                // Take the two nodes with the smallest frequencies
+                // Take two lowest frequency nodes
                 Node first = L.Head;
                 Node second = L.Head.Next;
 
-                // Create a new node with the combined frequency
+                // Create new combined node
                 Node newNode = new Node(55, first.Frequency + second.Frequency);
                 newNode.Left = first;
                 newNode.Right = second;
 
-                // Remove the two nodes from the list
+                // Remove the two nodes
                 L.Head = second.Next;
                 if (L.Head != null)
                 {
                     L.Head.Previous = null;
                 }
 
-                // Add the new node back into the list in the correct position
+                // Insert new combined node in proper position
                 L.AddInSequence(newNode);
             }
 
@@ -296,9 +321,8 @@ namespace Zipper
         }
 
         /// <summary>
-        /// Reads a file as a byte array
+        /// Opens file dialog and reads selected file
         /// </summary>
-        /// <returns>The byte array representing the file</returns>
         internal static byte[] readFileAsBytes()
         {
             OpenFileDialog ofd = new OpenFileDialog();
@@ -309,46 +333,48 @@ namespace Zipper
             return null;
         }
 
-        // Static variable to store the tree structure as a bit string
-        static string s = "";
-
         /// <summary>
-        /// Saves the Huffman tree structure as a byte array
+        /// Serializes Huffman tree to compact bit representation
         /// </summary>
-        /// <param name="tail">The root of the Huffman tree</param>
-        /// <returns>The byte array representing the tree</returns>
         internal static byte[] saveTree(Node tail)
         {
-            s = "";
-            rsaveTree(tail);
-            byte[] btArr = translate(s);
+            List<bool> treeBits = new List<bool>();
+            rsaveTree(tail, treeBits);
+            byte[] btArr = translate(treeBits.ToArray());
             return btArr;
         }
 
         /// <summary>
-        /// Compresses a file using Huffman encoding
+        /// Compresses input file using Huffman coding
         /// </summary>
-        /// <param name="inputFile">The path to the input file</param>
-        /// <param name="outputFile">The path to the output file</param>
         public static void Compress(string inputFile, string outputFile)
         {
+            // Read file and calculate frequencies
             byte[] fileBytes = File.ReadAllBytes(inputFile);
             uint[] freq = countEachByte(fileBytes);
+
+            // Build Huffman tree
             DoublyLinkedList list = makeDLL(freq);
             list = makeDLLHuffman(list);
             Node root = list.Tail;
+
+            // Generate codes and compress data
             var huffmanTable = BuildHuffmanTable(root);
             byte[] encodedBytes = translate(fileBytes, huffmanTable);
             byte[] treeBytes = saveTree(root);
+
+            // Write compressed file
             write2file(outputFile, encodedBytes, treeBytes);
-
-
         }
-        public static void write2file(string outputFile, byte[] encodedBytes, byte[] treeBytes) 
+
+        /// <summary>
+        /// Writes compressed data to file with header information
+        /// </summary>
+        public static void write2file(string outputFile, byte[] encodedBytes, byte[] treeBytes)
         {
-            // Write the tree length, encoded length, tree, and encoded data to the output file
             using (FileStream fs = new FileStream(outputFile, FileMode.Create))
             {
+                // Write tree length (2 bytes)
                 if (treeBytes.Length < 256)
                 {
                     fs.WriteByte(0);
@@ -363,87 +389,78 @@ namespace Zipper
                     fs.WriteByte((byte)z);
                 }
 
+                // Write tree and compressed data
                 fs.Write(treeBytes, 0, treeBytes.Length);
                 fs.Write(encodedBytes, 0, encodedBytes.Length);
             }
         }
 
         /// <summary>
-        /// Decompresses a file using Huffman decoding
+        /// Decompresses Huffman-encoded file
         /// </summary>
-        /// <param name="inputFile">The path to the input file</param>
-        /// <param name="outputFile">The path to the output file</param>
         public static void Decompress(string inputFile, string outputFile)
         {
+            // Read compressed file
             byte[] fileBytes = File.ReadAllBytes(inputFile);
-            int treeLength = fileBytes[0];
-            if (treeLength == 0)
-            {
-                treeLength = fileBytes[1];
-            }
-            else 
-            {
-                treeLength = (fileBytes[0] * 256) + fileBytes[1];
-            }
 
+            // Parse header to get tree and data lengths
+            int treeLength = fileBytes[0] == 0 ? fileBytes[1] : (fileBytes[0] * 256) + fileBytes[1];
             int encodedLength = fileBytes.Length - treeLength - 2;
 
+            // Extract tree and compressed data
             byte[] treeBytes = new byte[treeLength];
             Array.Copy(fileBytes, 2, treeBytes, 0, treeLength);
 
             byte[] encodedBytes = new byte[encodedLength];
             Array.Copy(fileBytes, 2 + treeLength, encodedBytes, 0, encodedLength);
 
+            // Rebuild tree and decode data
             Node root = rebuildTree(treeBytes);
             byte[] decodedBytes = decode(encodedBytes, root);
 
+            // Write decompressed file
             File.WriteAllBytes(outputFile, decodedBytes);
         }
 
         /// <summary>
-        /// Rebuilds the Huffman tree from a byte array
+        /// Rebuilds Huffman tree from serialized bit representation
         /// </summary>
-        /// <param name="treeBytes">The byte array representing the tree</param>
-        /// <returns>The root of the Huffman tree</returns>
         private static Node rebuildTree(byte[] treeBytes)
         {
-            string treeBits = "";
+            // Convert tree bytes to bits
+            List<bool> treeBits = new List<bool>();
             for (int i = 0; i < treeBytes.Length - 1; i++)
             {
-                treeBits += convertBt8b(treeBytes[i]);
+                treeBits.AddRange(ByteToBits(treeBytes[i]));
             }
 
             // Remove padding bits
             int paddingBits = treeBytes[treeBytes.Length - 1];
-            treeBits = treeBits.Substring(0, treeBits.Length - paddingBits);
+            treeBits.RemoveRange(treeBits.Count - paddingBits, paddingBits);
 
-            // The last byte value is the number of bits to be substracted from the bit string.
-
+            // Rebuild tree recursively
             int index = 0;
-            return rebuildTreeRecursive(treeBits, ref index);
+            return rebuildTreeRecursive(treeBits.ToArray(), ref index);
         }
 
         /// <summary>
-        /// Recursively rebuilds the Huffman tree from a bit string
+        /// Recursively rebuilds Huffman tree from bit array
         /// </summary>
-        /// <param name="treeBits">The bit string representing the tree</param>
-        /// <param name="index">The current position in the bit string</param>
-        /// <returns>The current node in the tree</returns>
-        private static Node rebuildTreeRecursive(string treeBits, ref int index)
+        private static Node rebuildTreeRecursive(bool[] treeBits, ref int index)
         {
             if (index >= treeBits.Length) return null;
 
-            if (treeBits[index] == '1')
+            if (treeBits[index++]) // Leaf node
             {
-                index++;
-                string byteBits = treeBits.Substring(index, 8);
+                // Read next 8 bits as byte value
+                bool[] byteBits = new bool[8];
+                Array.Copy(treeBits, index, byteBits, 0, 8);
                 index += 8;
-                byte key = convert8bB(byteBits);
+                byte key = BitsToByte(byteBits);
                 return new Node(key, 0);
             }
-            else
+            else // Internal node
             {
-                index++;
                 Node node = new Node(0, 0);
                 node.Left = rebuildTreeRecursive(treeBits, ref index);
                 node.Right = rebuildTreeRecursive(treeBits, ref index);
@@ -452,36 +469,29 @@ namespace Zipper
         }
 
         /// <summary>
-        /// Decodes the compressed data using the Huffman tree
+        /// Decodes compressed data using Huffman tree
         /// </summary>
-        /// <param name="encodedBytes">The compressed byte array</param>
-        /// <param name="root">The root of the Huffman tree</param>
-        /// <returns>The decoded byte array</returns>
         private static byte[] decode(byte[] encodedBytes, Node root)
         {
-            string bitString = "";
-  
-            for (int i = 0; i < encodedBytes.Length-1; i++)
+            // Convert encoded bytes to bits
+            List<bool> bitList = new List<bool>();
+            for (int i = 0; i < encodedBytes.Length - 1; i++)
             {
-                bitString += convertBt8b(encodedBytes[i]);
+                bitList.AddRange(ByteToBits(encodedBytes[i]));
             }
-            // The last byte value is the number of bits to be substracted from the bit string.
-            int paddingBits = encodedBytes[encodedBytes.Length - 1];
-            bitString = bitString.Substring(0, bitString.Length - paddingBits);
 
+            // Remove padding bits
+            int paddingBits = encodedBytes[encodedBytes.Length - 1];
+            bitList.RemoveRange(bitList.Count - paddingBits, paddingBits);
+
+            // Traverse tree using bits to decode bytes
             List<byte> decodedBytes = new List<byte>();
             Node current = root;
-            foreach (char bit in bitString)
+            foreach (bool bit in bitList)
             {
-                if (bit == '0')
-                {
-                    current = current.Right;
-                }
-                else
-                {
-                    current = current.Left;
-                }
+                current = bit ? current.Left : current.Right;
 
+                // When leaf is reached, record byte and reset to root
                 if (current.Left == null && current.Right == null)
                 {
                     decodedBytes.Add(current.Key);
